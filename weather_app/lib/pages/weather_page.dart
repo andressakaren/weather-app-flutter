@@ -12,7 +12,7 @@ class WeatherPage extends StatefulWidget {
 class _WeatherPageState extends State<WeatherPage> {
 
   // apikey
-  final _weatherService = WeatherService('apiKey');
+  final _weatherService = WeatherService('apiiiiiiiiiiiiiiiiiiiiiiiiiii');
   Weather? _weather;
 
   _fetchWeather() async {
@@ -45,13 +45,17 @@ class _WeatherPageState extends State<WeatherPage> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Column(
-        children: [
-          // city name
-          Text(_weather.cityName);
-          // temperatura
-        ],
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [ 
+            // city name
+            Text(_weather?.cityName ?? 'loading city..'),
+            // temperatura
+            Text('${_weather?.temperature.toString()}°C'),
+          ],
+        ),
       ),
     );
   }

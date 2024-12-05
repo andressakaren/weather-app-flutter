@@ -24,19 +24,32 @@ class WeatherService {
   }
 
   Future<String> getCurrentCity() async {
-    LocationPermission permission = await Geolocator.checkPermission();
+    // Verificar se o serviço de localização está habilitado
+    if (!await Geolocator.isLocationServiceEnabled()) {
+      throw Exception('Location services are disabled. Please enable them.');
+    }
 
+    // Verificar e solicitar permissões
+    LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission(); 
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        throw Exception('Location permissions are denied.');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      throw Exception(
+          'Location permissions are permanently denied. Please enable them in settings.');
     }
 
     //obter a posição atual
     Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high
-    );
+        desiredAccuracy: LocationAccuracy.high);
 
     //converter a localização em lista de obj
-    List<Placemark> placemark = await placemarkFromCoordinates(position.latitude, position.longitude);
+    List<Placemark> placemark =
+        await placemarkFromCoordinates(position.latitude, position.longitude);
 
     // extrair o nome da cidade do primeiro
     String? city = placemark[0].locality;
