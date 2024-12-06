@@ -24,36 +24,56 @@ class WeatherService {
   }
 
   Future<String> getCurrentCity() async {
-    // Verificar se o serviço de localização está habilitado
-    if (!await Geolocator.isLocationServiceEnabled()) {
-      throw Exception('Location services are disabled. Please enable them.');
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    print('Verificando se o serviço de localização está habilitado...');
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // se n =ão tiver habilitado, retornar erro
+      return Future.error('Serviço de localização está desabilitado.');
     }
 
-    // Verificar e solicitar permissões
-    LocationPermission permission = await Geolocator.checkPermission();
+    print('Verificar permissão: ');
+    permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
+      // solicitar permisão novamente
       if (permission == LocationPermission.denied) {
-        throw Exception('Location permissions are denied.');
+        return Future.error('Permissão negada');
       }
     }
-
+    // serviço negado permanentemente
     if (permission == LocationPermission.deniedForever) {
-      throw Exception(
+      print('Permissão negada permanentemente.');
+      return Future.error(
           'Location permissions are permanently denied. Please enable them in settings.');
     }
 
-    //obter a posição atual
-    Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
+    print('Obtendo a posição atual...');
+    final LocationSettings locationSettings = LocationSettings(
+      accuracy: LocationAccuracy.high,
+      distanceFilter: 100,
+    );
 
-    //converter a localização em lista de obj
+    Position position =
+        await Geolocator.getCurrentPosition(locationSettings: locationSettings);
+        
+    print('Posição obtida: ${position.latitude}, ${position.longitude}');
+
+    print('Convertendo coordenadas em nome da cidade...');
     List<Placemark> placemark =
         await placemarkFromCoordinates(position.latitude, position.longitude);
+    print('Placemarks obtidos: $placemark');
 
-    // extrair o nome da cidade do primeiro
     String? city = placemark[0].locality;
+    print('Cidade detectada: $city');
 
-    return city ?? ''; // se for nula, retorna uma string vazia.
+    return city ?? ''; // Retorna uma string vazia se for nula
   }
+
+  //   print('Obtendo a posição atual...');
+  //   Position position = await Geolocator.getCurrentPosition(
+  //       desiredAccuracy: LocationAccuracy.high);
+  //   print('Posição obtida: ${position.latitude}, ${position.longitude}');
 }
