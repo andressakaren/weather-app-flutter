@@ -1,3 +1,4 @@
+import 'api_key.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:weathe_app_flutter/models/weather_model.dart';
@@ -12,7 +13,7 @@ class WeatherPage extends StatefulWidget {
 
 class _WeatherPageState extends State<WeatherPage> {
   // apikey
-  final _weatherService = WeatherService('f188be1f1a0041ac81d46b7cdb4caac6');
+  final _weatherService = WeatherService(tmdbApiKey); // SUA API_KEY
   Weather? _weather;
 
   _fetchWeather() async {
